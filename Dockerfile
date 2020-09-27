@@ -1,10 +1,13 @@
 FROM golang:alpine as build
 
-WORKDIR /app
+RUN apk add git --no-cache
+
+WORKDIR /go/src
 COPY echoserver.go .
-RUN CGO_ENABLED=0 go build echoserver.go
+RUN go get github.com/gorilla/handlers && \
+  CGO_ENABLED=0 go build echoserver.go
 
 FROM scratch
-COPY --from=build /app/echoserver /echoserver
+COPY --from=build /go/src/echoserver /echoserver
 ENTRYPOINT ["/echoserver"]
 EXPOSE 8090

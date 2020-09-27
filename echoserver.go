@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
 	s "strings"
+
+	"github.com/gorilla/handlers"
 )
 
 // echo any interesting attributes about the request back to the client
@@ -56,6 +59,6 @@ func main() {
 
 	http.HandleFunc("/", echo)
 	http.HandleFunc("/ip", ip)
-	http.ListenAndServe(":8090", nil)
+	http.ListenAndServe(":8090", handlers.LoggingHandler(os.Stdout, http.DefaultServeMux))
 
 }
