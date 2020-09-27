@@ -74,7 +74,7 @@ func main() {
 	http.HandleFunc("/", echo)
 	http.HandleFunc("/ip", ip)
 
-	// Healthcheck - don't log reqs
+	// healthcheck - don't log reqs
 	http.Handle("/_healthz", handlers.CombinedLoggingHandler(ioutil.Discard, http.HandlerFunc(health)))
 
 	http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, http.DefaultServeMux))
