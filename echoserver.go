@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
@@ -15,6 +16,7 @@ func echo(w http.ResponseWriter, req *http.Request) {
 	// main attributes to return
 	fmt.Fprintf(w, "%v: %v\n", "Host", req.Host)
 	fmt.Fprintf(w, "%v: %v\n", "Remote Address", req.RemoteAddr)
+	fmt.Fprintf(w, "%v: %v\n", "Request Method", req.Method)
 	fmt.Fprintf(w, "%v: %v\n", "Request URI", req.RequestURI)
 
 	// Assemble a slice of headers
@@ -55,10 +57,26 @@ func ip(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%v\n", clientIP)
 }
 
+func health(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "ok\n")
+}
+
 func main() {
+
+	// allow port override from env
+	port := "8090"
+	if os.Getenv("PORT") != "" {
+		port = os.Getenv("PORT")
+	}
+
+	fmt.Println("listening on port " + port)
 
 	http.HandleFunc("/", echo)
 	http.HandleFunc("/ip", ip)
-	http.ListenAndServe(":8090", handlers.LoggingHandler(os.Stdout, http.DefaultServeMux))
+
+	// Healthcheck - don't log reqs
+	http.Handle("/_healthz", handlers.CombinedLoggingHandler(ioutil.Discard, http.HandlerFunc(health)))
+
+	http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, http.DefaultServeMux))
 
 }

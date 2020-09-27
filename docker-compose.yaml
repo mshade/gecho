@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  gecho:
+    image: mshade/gecho
+    build:
+      context: .
+      target: dev
+    command: go run echoserver.go
+    ports:
+      - 8090:8090
+    environment:
+      - PORT=8090
+    volumes:
+      - ./:/app
