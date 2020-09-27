@@ -7,9 +7,9 @@ import (
 	s "strings"
 )
 
+// echo any interesting attributes about the request back to the client
 func echo(w http.ResponseWriter, req *http.Request) {
-
-	// Main attributes to return
+	// main attributes to return
 	fmt.Fprintf(w, "%v: %v\n", "Host", req.Host)
 	fmt.Fprintf(w, "%v: %v\n", "Remote Address", req.RemoteAddr)
 	fmt.Fprintf(w, "%v: %v\n", "Request URI", req.RequestURI)
@@ -25,15 +25,17 @@ func echo(w http.ResponseWriter, req *http.Request) {
 	// sort our headers for consistency and readability
 	sort.Strings(allHeaders)
 
+	// spit it all out.
 	fmt.Fprintf(w, "%v", "\nHeaders\n")
 	fmt.Fprintf(w, s.Join(allHeaders, ""))
 }
 
+// return the client IP, as best as we can determine.
 func ip(w http.ResponseWriter, req *http.Request) {
-	// Start with the plain client address.
+	// start with the plain client address.
 	clientIP := s.Split(req.RemoteAddr, ":")[0]
 
-	// Loop over header values we care about from least to most relevant.
+	// loop over header values we care about from least to most relevant.
 	// the sort order of these is undefined.
 	for name, headers := range req.Header {
 		if s.Contains(name, "X-Forwarded-For") {
@@ -46,6 +48,7 @@ func ip(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// gotcha!
 	fmt.Fprintf(w, "%v\n", clientIP)
 }
 
